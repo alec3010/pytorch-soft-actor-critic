@@ -42,6 +42,8 @@ parser.add_argument('--target_update_interval', type=int, default=1, metavar='N'
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
+parser.add_argument('--chp_int', type=int, default=100000, metavar='N',
+                    help='steps after which a checkpoint is generated/checkpoint interval (default: 100000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 parser.add_argument('--render_eval', action="store_true",
@@ -109,12 +111,12 @@ for i_episode in itertools.count(1):
 
         state = next_state
     
-    if total_numsteps%40000 == 0:
-        suf = "_" + str(total_numsteps)
+    if total_numsteps % args.chp_int == 0:
+        suf = str(total_numsteps)
         agent.save_checkpoint(args.env_name, suffix=suf)
 
     if total_numsteps > args.num_steps:
-        suf = '=' + str(total_numsteps)
+        suf = str(total_numsteps) + '_' + "final"
         agent.save_checkpoint(args.env_name, suffix=suf)
         break
         
