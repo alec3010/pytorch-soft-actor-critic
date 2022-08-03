@@ -1,6 +1,8 @@
+import os
 import argparse
 import gym
 import numpy as np
+import pickle
 from sac import SAC
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic RL Demo Generator')
@@ -10,9 +12,11 @@ parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 parser.add_argument('--only_render', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--no_render', action="store_false",
+                    help='run on CUDA (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--path',  type=str, default="/home/alex/repos/pytorch-soft-actor-critic/runs/2022-08-02_17-37-54_SAC_HalfCheetah-v2_Gaussian_/events.out.tfevents.1659429474.rllab.400106.0",
+parser.add_argument('--path',  type=str, default="checkpoints/sac_checkpoint_HalfCheetah-v2__480000",
                     help='path to load trained policy from')
 parser.add_argument('--dem_length', type=int, default=300, 
                     help='length of each demonstration in steps')
@@ -75,7 +79,8 @@ for i in range(args.dem_amount):
             acs_traj.append(action)
 
         next_state, reward, done, _ = env.step(action)
-        env.render(mode = "human")
+        if not args.no_render:
+            env.render(mode = "human")
 
         state = next_state
         
@@ -84,3 +89,14 @@ for i in range(args.dem_amount):
         d['obs']=obs_traj
         d['acs']=acs_traj
         demo.append(d)
+
+if not args.only_render:
+
+    if not os.path.exists('demos/'):
+        os.makedirs('demos/')
+    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, "test") + ".pkl"    
+    
+    print('Saving demos to {}'.format(demo_path))
+
+    with open(demo_path, 'wb') as f:
+        pickle.dump(demo, f)
