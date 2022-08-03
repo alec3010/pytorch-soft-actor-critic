@@ -16,8 +16,8 @@ parser.add_argument('--no_render', action="store_false",
                     help='run on CUDA (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--path',  type=str, default="checkpoints/sac_checkpoint_HalfCheetah-v2__480000",
-                    help='path to load trained policy from')
+parser.add_argument('--path',  type=str,
+                    help='path to load trained policy from', required=True)
 parser.add_argument('--dem_length', type=int, default=300, 
                     help='length of each demonstration in steps')
 parser.add_argument('--dem_amount', type=int, default=50,
@@ -94,7 +94,8 @@ if not args.only_render:
 
     if not os.path.exists('demos/'):
         os.makedirs('demos/')
-    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, "test") + ".pkl"    
+    items = args.path.split('_')
+    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, items[-1]) + ".pkl"    
     
     print('Saving demos to {}'.format(demo_path))
 
