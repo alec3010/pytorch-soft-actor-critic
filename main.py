@@ -44,6 +44,8 @@ parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--render_eval', action="store_true",
+                    help='render evaluations (default: False)')
 args = parser.parse_args()
 
 # Environment
@@ -124,6 +126,8 @@ for i_episode in itertools.count(1):
                 action = agent.select_action(state, evaluate=True)
 
                 next_state, reward, done, _ = env.step(action)
+                if args.render_eval:
+                    env.render(mode = "human")
                 episode_reward += reward
 
 
