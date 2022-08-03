@@ -8,6 +8,8 @@ parser.add_argument('--env-name', default="HalfCheetah-v2",
                     help='Mujoco Gym environment (default: HalfCheetah-v2)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+parser.add_argument('--only_render', action="store_true",
+                    help='run on CUDA (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--path',  type=str, default="/home/alex/repos/pytorch-soft-actor-critic/runs/2022-08-02_17-37-54_SAC_HalfCheetah-v2_Gaussian_/events.out.tfevents.1659429474.rllab.400106.0",
@@ -49,8 +51,6 @@ parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
 
 args = parser.parse_args()
 
-
-
 # ENVIRONMENT SETUP
 env = gym.make(args.env_name)
 env.seed(args.seed)
@@ -58,7 +58,7 @@ env.action_space.seed(args.seed)
 
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_checkpoint(args.path)
+agent.load_checkpoint(args.path, evaluate=True)
 
 demo = []
 
@@ -69,15 +69,18 @@ for i in range(args.dem_amount):
     
     for j in range(args.dem_length):
         action = agent.select_action(state)
-        
-        obs_traj.append(state)
-        acs_traj.append(action)
+
+        if not args.only_render:
+            obs_traj.append(state)
+            acs_traj.append(action)
 
         next_state, reward, done, _ = env.step(action)
         env.render(mode = "human")
 
         state = next_state
-    d = {}
-    d['obs']=obs_traj
-    d['acs']=acs_traj
-    demo.append(d)
+        
+    if not args.only_render:
+        d = {}
+        d['obs']=obs_traj
+        d['acs']=acs_traj
+        demo.append(d)
