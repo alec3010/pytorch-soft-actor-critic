@@ -1,5 +1,6 @@
 __pycache__/
 runs/
 checkpoints/
+demos/
 .idea
 MUJOCO_LOG.TXT
