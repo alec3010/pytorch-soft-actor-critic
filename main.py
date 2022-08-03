@@ -108,9 +108,17 @@ for i_episode in itertools.count(1):
         memory.push(state, action, reward, next_state, mask) # Append transition to memory
 
         state = next_state
+    
+    if total_numsteps%40000 == 0:
+        suf = "_" + str(total_numsteps)
+        agent.save_checkpoint(args.env_name, suffix=suf)
 
     if total_numsteps > args.num_steps:
+        suf = '=' + str(total_numsteps)
+        agent.save_checkpoint(args.env_name, suffix=suf)
         break
+        
+
 
     writer.add_scalar('reward/train', episode_reward, i_episode)
     print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps, episode_steps, round(episode_reward, 2)))
@@ -143,4 +151,3 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
 
 env.close()
-
