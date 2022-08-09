@@ -12,13 +12,13 @@ parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 parser.add_argument('--only_render', action="store_true",
                     help='run on CUDA (default: False)')
-parser.add_argument('--no_render', action="store_false",
+parser.add_argument('--render', action="store_true",
                     help='run on CUDA (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--path',  type=str,
                     help='path to load trained policy from', required=True)
-parser.add_argument('--dem_length', type=int, default=300, 
+parser.add_argument('--dem_length', type=int, default=1000, 
                     help='length of each demonstration in steps')
 parser.add_argument('--dem_amount', type=int, default=50,
                     help='amount of demonstrations to record')
@@ -49,7 +49,7 @@ parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
                     help='Steps sampling random actions (default: 10000)')
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
-parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
+parser.add_argument('--replay_size', type=int, default=1000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
 
 
@@ -79,7 +79,7 @@ for i in range(args.dem_amount):
             acs_traj.append(action)
 
         next_state, reward, done, _ = env.step(action)
-        if not args.no_render:
+        if args.render:
             env.render(mode = "human")
 
         state = next_state
@@ -95,7 +95,7 @@ if not args.only_render:
     if not os.path.exists('demos/'):
         os.makedirs('demos/')
     items = args.path.split('_')
-    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, items[-1]) + ".pkl"    
+    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, items[-1]) + ".pickle"    
     
     print('Saving demos to {}'.format(demo_path))
 
