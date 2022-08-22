@@ -30,7 +30,7 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
-parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
+parser.add_argument('--num_steps', type=int, default=25001, metavar='N',
                     help='maximum number of steps (default: 1000000)')
 parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
@@ -42,7 +42,7 @@ parser.add_argument('--target_update_interval', type=int, default=1, metavar='N'
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
-parser.add_argument('--chp_int', type=int, default=100000, metavar='N',
+parser.add_argument('--chp_int', type=int, default=5000, metavar='N',
                     help='steps after which a checkpoint is generated/checkpoint interval (default: 100000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
@@ -72,6 +72,7 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Training Loop
 total_numsteps = 0
 updates = 0
+chpts = 1
 
 for i_episode in itertools.count(1):
     episode_reward = 0
@@ -111,9 +112,11 @@ for i_episode in itertools.count(1):
 
         state = next_state
     
-    if total_numsteps % args.chp_int == 0:
-        suf = str(total_numsteps)
-        agent.save_checkpoint(args.env_name, suffix=suf)
+        if total_numsteps % args.chp_int == 0:
+            print("Saving Checkpoint")
+            suf = str(total_numsteps)
+            agent.save_checkpoint(args.env_name, suffix=suf)
+        
 
     if total_numsteps > args.num_steps:
         suf = str(total_numsteps) + '_' + "final"

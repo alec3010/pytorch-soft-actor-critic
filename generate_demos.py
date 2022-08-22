@@ -18,9 +18,9 @@ parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
 parser.add_argument('--path',  type=str,
                     help='path to load trained policy from', required=True)
-parser.add_argument('--dem_length', type=int, default=1000, 
+parser.add_argument('--dem_length', type=int, default=30, 
                     help='length of each demonstration in steps')
-parser.add_argument('--dem_amount', type=int, default=50,
+parser.add_argument('--dem_amount', type=int, default=1000,
                     help='amount of demonstrations to record')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
@@ -68,15 +68,18 @@ demo = []
 
 for i in range(args.dem_amount):
     state = env.reset()
-    obs_traj = []
-    acs_traj = []
+    traj = []
     
     for j in range(args.dem_length):
         action = agent.select_action(state)
 
         if not args.only_render:
-            obs_traj.append(state)
-            acs_traj.append(action)
+
+            d = {}
+            d['obs']=state[0:2]
+            d['acs']=action
+            traj.append(d)
+            
 
         next_state, reward, done, _ = env.step(action)
         if args.render:
@@ -85,17 +88,15 @@ for i in range(args.dem_amount):
         state = next_state
         
     if not args.only_render:
-        d = {}
-        d['obs']=obs_traj
-        d['acs']=acs_traj
-        demo.append(d)
+        
+        demo.append(traj)
 
 if not args.only_render:
 
     if not os.path.exists('demos/'):
         os.makedirs('demos/')
     items = args.path.split('_')
-    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, items[-1]) + ".pickle"    
+    demo_path = "demos/sac_demo_{}_{}".format(args.env_name, items[-1]) + "_pomdp.pickle"    
     
     print('Saving demos to {}'.format(demo_path))
 
